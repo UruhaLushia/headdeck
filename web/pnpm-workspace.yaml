@@ -1,0 +1,4 @@
+# pnpm 11 reads build-script approvals here. esbuild ships a native binary that
+# Vite needs, so its install script is allowed; nothing else is.
+onlyBuiltDependencies:
+  - esbuild

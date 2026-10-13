@@ -1,0 +1,20 @@
+{
+  "nodes": [
+    {
+      "id": "4",
+      "ipAddresses": ["100.64.0.4"],
+      "name": "new-node.example.com",
+      "givenName": "new-node",
+      "user": null,
+      "lastSeen": "2025-01-01T00:00:00Z",
+      "expiry": null,
+      "createdAt": "2025-01-01T00:00:00Z",
+      "registerMethod": "REGISTER_METHOD_AUTH_KEY",
+      "online": true,
+      "approvedRoutes": [],
+      "availableRoutes": [],
+      "subnetRoutes": [],
+      "tags": ["tag:new", "tag:prod"]
+    }
+  ]
+}

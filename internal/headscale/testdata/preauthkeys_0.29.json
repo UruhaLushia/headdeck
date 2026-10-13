@@ -1,0 +1,24 @@
+{
+  "preAuthKeys": [
+    {
+      "user": {
+        "id": "1",
+        "name": "alice",
+        "createdAt": "2026-01-01T00:00:00Z",
+        "displayName": "",
+        "email": "",
+        "providerId": "",
+        "provider": "",
+        "profilePicUrl": ""
+      },
+      "id": "1",
+      "key": "hskey-auth-abcd1234efgh-***",
+      "reusable": false,
+      "ephemeral": false,
+      "used": false,
+      "expiration": "2027-01-01T00:00:00Z",
+      "createdAt": "2026-01-01T00:00:00Z",
+      "aclTags": []
+    }
+  ]
+}

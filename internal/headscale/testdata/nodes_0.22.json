@@ -1,0 +1,27 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "machineKey": "mkey:aaaa",
+      "nodeKey": "nodekey:bbbb",
+      "discoKey": "discokey:cccc",
+      "ipAddresses": ["100.64.0.1"],
+      "name": "old-node.example.com",
+      "givenName": "old-node",
+      "user": {
+        "id": "1",
+        "name": "alice",
+        "createdAt": "2023-01-01T00:00:00Z"
+      },
+      "lastSeen": "2023-06-01T12:00:00Z",
+      "expiry": "2023-12-01T00:00:00Z",
+      "preAuthKey": null,
+      "createdAt": "2023-01-01T00:00:00Z",
+      "registerMethod": "REGISTER_METHOD_CLI",
+      "online": false,
+      "forcedTags": ["tag:legacy"],
+      "validTags": [],
+      "invalidTags": ["tag:unknown"]
+    }
+  ]
+}

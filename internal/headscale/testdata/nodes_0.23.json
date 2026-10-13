@@ -1,0 +1,37 @@
+{
+  "nodes": [
+    {
+      "id": "2",
+      "machineKey": "mkey:dddd",
+      "nodeKey": "nodekey:eeee",
+      "discoKey": "discokey:ffff",
+      "ipAddresses": ["100.64.0.2", "fd7a:115c:a1e0::2"],
+      "name": "mid-node.example.com",
+      "givenName": "mid-node",
+      "user": { "id": "2", "name": "bob", "createdAt": "2023-02-01T00:00:00Z" },
+      "lastSeen": null,
+      "expiry": null,
+      "preAuthKey": {
+        "id": "1",
+        "key": "hskey-auth-old-***",
+        "user": {
+          "id": "2",
+          "name": "bob",
+          "createdAt": "2023-02-01T00:00:00Z"
+        },
+        "reusable": true,
+        "ephemeral": true,
+        "used": true,
+        "expiration": "2023-12-01T00:00:00Z",
+        "createdAt": "2023-02-01T00:00:00Z",
+        "aclTags": []
+      },
+      "createdAt": "2023-02-01T00:00:00Z",
+      "registerMethod": "REGISTER_METHOD_AUTH_KEY",
+      "online": true,
+      "forcedTags": [],
+      "validTags": ["tag:mid"],
+      "invalidTags": []
+    }
+  ]
+}

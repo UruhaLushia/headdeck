@@ -1,0 +1,118 @@
+syntax = "proto3";
+
+package headscale.v1;
+option go_package = "github.com/UruhaLushia/headdeck/internal/headscale/rpc";
+
+import "google/protobuf/timestamp.proto";
+
+// Wire-compatible subset of Headscale's local management protocol.
+// Field numbers and method names must match the upstream headscale.v1 API.
+message User {
+  uint64 id = 1;
+  string name = 2;
+  google.protobuf.Timestamp created_at = 3;
+  string display_name = 4;
+  string email = 5;
+  string provider_id = 6;
+  string provider = 7;
+  string profile_pic_url = 8;
+}
+
+message PreAuthKey {
+  User user = 1;
+  uint64 id = 2;
+  string key = 3;
+  bool reusable = 4;
+  bool ephemeral = 5;
+  bool used = 6;
+  google.protobuf.Timestamp expiration = 7;
+  google.protobuf.Timestamp created_at = 8;
+  repeated string acl_tags = 9;
+}
+
+enum RegisterMethod {
+  REGISTER_METHOD_UNSPECIFIED = 0;
+  REGISTER_METHOD_AUTH_KEY = 1;
+  REGISTER_METHOD_CLI = 2;
+  REGISTER_METHOD_OIDC = 3;
+}
+
+message Node {
+  uint64 id = 1;
+  string machine_key = 2;
+  string node_key = 3;
+  string disco_key = 4;
+  repeated string ip_addresses = 5;
+  string name = 6;
+  User user = 7;
+  google.protobuf.Timestamp last_seen = 8;
+  reserved 9;
+  google.protobuf.Timestamp expiry = 10;
+  PreAuthKey pre_auth_key = 11;
+  google.protobuf.Timestamp created_at = 12;
+  RegisterMethod register_method = 13;
+  reserved 14 to 17;
+  repeated string forced_tags = 18;
+  repeated string invalid_tags = 19;
+  repeated string valid_tags = 20;
+  string given_name = 21;
+  bool online = 22;
+  repeated string approved_routes = 23;
+  repeated string available_routes = 24;
+  repeated string subnet_routes = 25;
+  repeated string tags = 26;
+}
+
+message CreateUserRequest {
+  string name = 1;
+  string display_name = 2;
+  string email = 3;
+}
+message CreateUserResponse { User user = 1; }
+message RenameUserRequest { uint64 old_id = 1; string new_name = 2; }
+message RenameUserResponse { User user = 1; }
+message DeleteUserRequest { uint64 id = 1; }
+message DeleteUserResponse {}
+message ListUsersRequest {}
+message ListUsersResponse { repeated User users = 1; }
+
+message ListNodesRequest { string user = 1; }
+message ListNodesResponse { repeated Node nodes = 1; }
+message RegisterNodeRequest { string user = 1; string key = 2; }
+message RegisterNodeResponse { Node node = 1; }
+message GetNodeRequest { uint64 node_id = 1; }
+message GetNodeResponse { Node node = 1; }
+message RenameNodeRequest { uint64 node_id = 1; string new_name = 2; }
+message RenameNodeResponse { Node node = 1; }
+message DeleteNodeRequest { uint64 node_id = 1; }
+message DeleteNodeResponse {}
+message ExpireNodeRequest { uint64 node_id = 1; }
+message ExpireNodeResponse { Node node = 1; }
+message SetTagsRequest { uint64 node_id = 1; repeated string tags = 2; }
+message SetTagsResponse { Node node = 1; }
+message SetApprovedRoutesRequest { uint64 node_id = 1; repeated string routes = 2; }
+message SetApprovedRoutesResponse { Node node = 1; }
+
+message CreatePreAuthKeyRequest {
+  uint64 user = 1;
+  bool reusable = 2;
+  bool ephemeral = 3;
+  google.protobuf.Timestamp expiration = 4;
+  repeated string acl_tags = 5;
+}
+message CreatePreAuthKeyResponse { PreAuthKey pre_auth_key = 1; }
+message ListPreAuthKeysRequest {}
+message ListPreAuthKeysResponse { repeated PreAuthKey pre_auth_keys = 1; }
+message ExpirePreAuthKeyRequest { uint64 id = 1; }
+message ExpirePreAuthKeyResponse {}
+message DeletePreAuthKeyRequest { uint64 id = 1; }
+message DeletePreAuthKeyResponse {}
+
+message GetPolicyRequest {}
+message GetPolicyResponse { string policy = 1; }
+message SetPolicyRequest { string policy = 1; }
+message SetPolicyResponse {}
+message CheckPolicyRequest { string policy = 1; }
+message CheckPolicyResponse {}
+message HealthRequest {}
+message HealthResponse { bool database_connectivity = 1; }

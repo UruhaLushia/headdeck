@@ -1,0 +1,9 @@
+/hdkt
+/dist/
+/.dev/
+
+# Frontend: dependencies are installed, the build output is generated into the
+# Go package that embeds it. Only the placeholder is committed.
+web/node_modules/
+internal/web/dist/*
+!internal/web/dist/.gitkeep
