@@ -123,7 +123,7 @@ func (s *Server) securityRoutes(mux *http.ServeMux) {
 	s.endpoint(mux, "PUT /api/accounts/{id}/password", nil, withBody(func(r *http.Request, v passwordRequest) (any, error) {
 		p, ok := principalFrom(r)
 		if !ok || !p.Has("accounts.write") {
-			return nil, protocol.NewError(protocol.CodePermissionDenied, "owner required")
+			return nil, protocol.NewError(protocol.CodePermissionDenied, "administrator required")
 		}
 		if _, err := s.credentials.Account(r.Context(), r.PathValue("id")); err != nil {
 			return nil, err

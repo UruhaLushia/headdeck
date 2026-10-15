@@ -74,9 +74,9 @@ func TestUserManagementAndAccountBindingPermissions(t *testing.T) {
 	_, err = f.client.SaveAccount(ctx, "", protocol.Account{Label: "denied", Role: principal.RoleAdmin})
 	denied(err, protocol.CodePermissionDenied)
 	f.authorize(t, principal.RoleAdmin)
-	_, err = f.client.SaveAccount(ctx, "", protocol.Account{Label: "denied", Role: principal.RoleOwner})
-	denied(err, protocol.CodePermissionDenied)
-	f.authorize(t, principal.RoleOwner)
+	if _, err = f.client.SaveAccount(ctx, "", protocol.Account{Label: "Site owner", Role: principal.RoleOwner}); err != nil {
+		t.Fatal("administrator cannot create an owner account", err)
+	}
 	u, err := f.client.CreateUser(ctx, protocol.CreateUserRequest{Name: "alice", DisplayName: "Display", Email: "a@example.test"})
 	if err != nil {
 		t.Fatal(err)

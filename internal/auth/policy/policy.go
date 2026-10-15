@@ -64,13 +64,12 @@ const (
 
 func PermissionsFor(role Role) []Permission {
 	switch role {
-	case RoleOwner:
-		return append(PermissionsFor(RoleAdmin), PermAccountsRead, PermAccountsWrite)
-	case RoleAdmin:
+	case RoleOwner, RoleAdmin:
 		return []Permission{
 			PermDNSRead, PermDNSWrite, PermPolicyRead, PermPolicyWrite,
 			PermSystemRead, PermNodesRead, PermNodesWrite, PermNodesManage, PermNodesDelete,
 			PermUsersRead, PermUsersWrite, PermKeysRead, PermKeysWrite, PermRoutesRead, PermRoutesWrite,
+			PermAccountsRead, PermAccountsWrite,
 			PermServiceManage, PermOperationsRead, PermAuditRead, PermSettingsRead, PermSettingsWrite,
 		}
 	case RoleMember:

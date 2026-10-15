@@ -38,7 +38,7 @@ func (s *Server) settingsRoutes(mux *http.ServeMux) {
 		p, _ := principalFrom(r)
 		for key := range v.Changes {
 			if policy.OwnerSetting(key) && !p.Has(principal.PermAccountsWrite) {
-				return nil, protocol.NewError(protocol.CodePermissionDenied, "owner required")
+				return nil, protocol.NewError(protocol.CodePermissionDenied, "administrator required")
 			}
 		}
 		out, err := s.settings.UpdateValidated(r.Context(), v.Changes, s.validateConfig)

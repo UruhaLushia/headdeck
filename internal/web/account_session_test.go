@@ -262,6 +262,11 @@ func TestAccountApprovalScopeAndRevocation(t *testing.T) {
 		}
 	}
 	for _, action := range []struct{ method, path, body string }{
+		{"PUT", "/api/accounts/" + a.ID, `{"role":"owner"}`},
+		{"POST", "/api/accounts/" + a.ID + "/identities", `{"issuer":"https://login.example","subject":"stolen"}`},
+		{"DELETE", "/api/accounts/" + a.ID + "/identities", `{"issuer":"https://login.example","subject":"alice"}`},
+		{"PUT", "/api/accounts/" + a.ID + "/password", `{"username":"alice","password":"changed-password-123"}`},
+		{"POST", "/api/accounts/" + a.ID + "/security", `{"action":"sessions.revoke"}`},
 		{"POST", "/api/nodes/register", `{"user_id":"2","key":"hskey-authreq-test"}`},
 		{"POST", "/api/nodes/20/rename", `{"new_name":"stolen"}`},
 		{"POST", "/api/nodes/20/expire", ""},
@@ -313,7 +318,7 @@ func TestAccountApprovalScopeAndRevocation(t *testing.T) {
 	if _, err := svc.SaveAccount(ctx, a.ID, *a); err != nil {
 		t.Fatal(err)
 	}
-	if get("/api/settings").Code != http.StatusOK || get("/api/accounts").Code != http.StatusForbidden {
+	if get("/api/settings").Code != http.StatusOK || get("/api/accounts").Code != http.StatusOK {
 		t.Fatal("approval did not take effect for the existing session")
 	}
 	reloads := 0
@@ -326,11 +331,8 @@ func TestAccountApprovalScopeAndRevocation(t *testing.T) {
 	if invalid.Code == http.StatusOK || reloads != 1 {
 		t.Fatal("failed settings write triggered a reload")
 	}
-	for _, path := range []string{"/api/accounts", "/api/accounts/" + a.ID + "/security"} {
-		out := request(t, srv, http.MethodPost, path, `{}`, map[string]string{"X-Requested-With": "headdeck"}, []*http.Cookie{cookie})
-		if out.Code != http.StatusForbidden {
-			t.Fatal("administrator can manage other accounts", path, out.Code)
-		}
+	if out := get("/api/accounts/" + a.ID + "/security"); out.Code != http.StatusOK {
+		t.Fatal("administrator cannot inspect account security", out.Code)
 	}
 	a.Role = principal.RolePending
 	if _, err := svc.SaveAccount(ctx, a.ID, *a); err != nil {

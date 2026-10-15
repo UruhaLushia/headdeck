@@ -22,7 +22,7 @@ export function ConfirmDialog({ confirm, onClose }: { confirm: ConfirmSpec; onCl
       await confirm.onConfirm();
       onClose();
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : t("Request failed"));
+      setError(reason instanceof Error ? t(reason.message) : t("Request failed"));
     } finally {
       submitting.current = false;
       setPending(false);

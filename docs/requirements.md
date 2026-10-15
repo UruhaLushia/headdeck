@@ -8,10 +8,10 @@ Headdeck provides terminal and browser management for self-hosted Headscale. Thi
 | --- | --- |
 | `pending` | Waits for approval; cannot read network resources or perform management operations |
 | `member` | Views the bound Headscale user, devices, routes and authentication keys; can rename or expire owned devices and manage owned keys |
-| `admin` | Manages network resources, DNS, policies, Headscale configuration and services; cannot manage other Headdeck accounts |
-| `owner` | Includes administrator access and manages accounts, identity bindings, login providers and Web settings |
+| `admin` | Manages all accounts, identity bindings, account security, login providers, Web settings, network resources, DNS, policies, Headscale configuration and services |
+| `owner` | Includes administrator access; the last enabled owner cannot be disabled or demoted |
 
-A member Web account needs a Headscale binding before accessing management pages. The server enforces permissions and ownership independently of visible UI controls. Local Unix authorization and Web accounts are separate; changes to local authorization require sudo.
+Every account can manage its own profile, sign-in identities and security. Only administrators and owners can administer other accounts. A member Web account needs a Headscale binding before accessing management pages. The server enforces permissions and ownership independently of visible UI controls. Local Unix authorization and Web accounts are separate; changes to local authorization require sudo.
 
 ## Features
 
@@ -37,7 +37,7 @@ A member Web account needs a Headscale binding before accessing management pages
 - GitHub login names provide usernames, nicknames provide display labels, and numeric identifiers identify the external identity.
 - An account may have multiple identities; a Headscale user may be bound to only one Headdeck account.
 - Provider settings control Headdeck account registration. `server.web.default_role` is `pending` by default for private deployments; public deployments use `member`. Automatic registration never grants `admin` or `owner`, and changing the default does not change existing roles.
-- Headdeck account registration and Headscale user registration are separate. A new member has no Headscale user until the first Tailscale device OIDC login. Headscale creates that user, and Headdeck binds it using `<Headdeck issuer>/<account ID>`. Pending accounts require an owner to bind an existing Headscale user and approve access.
+- Headdeck account registration and Headscale user registration are separate. A new member has no Headscale user until the first Tailscale device OIDC login. Headscale creates that user, and Headdeck binds it using `<Headdeck issuer>/<account ID>`. Pending accounts require an administrator or owner to bind an existing Headscale user and approve access.
 - Provider username collisions receive a unique suffix instead of failing registration or merging accounts. Missing or invalid usernames receive a generated name. Existing Headscale users are never claimed by matching a name or email.
 - Disabling accounts, changing privileges or rebinding users must prevent old sessions from retaining previous access.
 

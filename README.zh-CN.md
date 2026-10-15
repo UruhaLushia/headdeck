@@ -30,7 +30,7 @@ Headdeck 通过本地 Unix 套接字直接管理 Headscale，无需 API 密钥�
 
 Headscale OIDC 的客户端、密钥、回调和公开服务地址由 Headdeck 自动管理。只需配置一次 `server.web.public_url`，内部上游自动读取 Headscale 的 `listen_addr` 并限制到回环地址。Headdeck 与 Headscale 使用不同的内部监听端口。
 
-Web 使用域名根路径并代理 Headscale 请求，HTTPS 只需转发到 Headdeck。新账户默认 `pending`，由 owner 审核；公开部署可将默认注册角色设为 `member`，在 Tailscale 设备首次登录时创建并绑定 Headscale 用户。
+Web 使用域名根路径并代理 Headscale 请求，HTTPS 只需转发到 Headdeck。新账户默认 `pending`，由管理员或所有者审核；公开部署可将默认注册角色设为 `member`，在 Tailscale 设备首次登录时创建并绑定 Headscale 用户。
 
 仅使用终端时，可以用 `make build` 构建。
 
@@ -47,7 +47,7 @@ hdkt auth add alice
 hdkt auth remove alice
 ```
 
-Web 账户由所有者管理，新注册账户等待授权。更多命令见 `hdkt --help`。
+Web 账户由管理员和所有者管理，新注册账户等待授权。更多命令见 `hdkt --help`。
 
 ## 开发
 

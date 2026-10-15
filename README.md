@@ -30,7 +30,7 @@ Headdeck manages Headscale directly through its local Unix socket. No API key or
 
 Headdeck manages the Headscale OIDC client, secret, callback and public server URL automatically. Set `server.web.public_url` once; the internal upstream is read from Headscale's `listen_addr` and restricted to loopback. Headdeck and Headscale use separate internal listening ports.
 
-Web lives at the domain root and proxies Headscale requests, so HTTPS only needs to forward to Headdeck. New accounts default to `pending` for owner approval. Set the default registration role to `member` for public deployments; Headscale users are created and bound when a Tailscale device first signs in.
+Web lives at the domain root and proxies Headscale requests, so HTTPS only needs to forward to Headdeck. New accounts default to `pending` for administrator or owner approval. Set the default registration role to `member` for public deployments; Headscale users are created and bound when a Tailscale device first signs in.
 
 For a terminal-only build, use `make build`.
 
@@ -47,7 +47,7 @@ hdkt auth add alice
 hdkt auth remove alice
 ```
 
-The owner manages Web accounts; newly registered accounts wait for approval. See `hdkt --help` for more commands.
+Administrators and owners manage Web accounts; newly registered accounts wait for approval. See `hdkt --help` for more commands.
 
 ## Development
 

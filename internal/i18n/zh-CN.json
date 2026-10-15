@@ -343,7 +343,7 @@
   "Username": "用户名",
   "Role": "角色",
   "Owner required": "需要所有者权限",
-  "owner required": "需要所有者权限",
+  "administrator required": "需要管理员权限",
   "Headscale user": "Headscale 用户",
   "Unlinked": "未绑定",
   "Edit account": "编辑账户",

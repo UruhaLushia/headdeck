@@ -54,7 +54,7 @@ func (s *Service) RenameUser(ctx context.Context, id, name string) (*protocol.Us
 			return nil, accountError(err)
 		}
 		if p, ok := principal.FromContext(ctx); ok && linked && !p.Has(principal.PermAccountsWrite) {
-			return nil, protocol.NewError(protocol.CodePermissionDenied, "owner required")
+			return nil, protocol.NewError(protocol.CodePermissionDenied, "administrator required")
 		}
 		if err := s.accounts.CheckHeadscaleUsername(ctx, id, name); err != nil {
 			return nil, accountError(err)

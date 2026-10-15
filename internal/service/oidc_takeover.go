@@ -17,7 +17,7 @@ import (
 
 func (s *Service) ApplyOIDCTakeover(ctx context.Context, actor string, recover bool) (*protocol.Operation, error) {
 	p, ok := principal.FromContext(ctx)
-	if !ok || !p.Has(principal.PermAccountsWrite) || !p.Has(principal.PermServiceManage) || p.Kind == principal.KindWebSession {
+	if !ok || p.Role != principal.RoleOwner || !p.Has(principal.PermServiceManage) || p.Kind == principal.KindWebSession {
 		return nil, protocol.NewError(protocol.CodePermissionDenied, "login takeover requires a local owner")
 	}
 	return s.StartOIDCTakeover(actor, recover)

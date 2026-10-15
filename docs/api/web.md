@@ -28,7 +28,7 @@ The ordinary management API denies pending accounts and members without a Headsc
 | DELETE | `/api/sessions/{id}` | Revoke one session |
 | DELETE | `/api/sessions` | Revoke all own sessions, including the current one |
 
-Password login returns `{"authenticated":true}` or `{"two_factor":true}`. The latter uses a short-lived `headdeck_auth` Cookie for the TOTP step. Provider login redirects back to the application or its second-factor page. Provider auto-registration uses `server.web.default_role` (`pending` or `member`, default `pending`), independently of Headscale user creation. An unbound public member receives `device_registration:true` in `/api/session`, with no network permissions; a pending device OIDC request can still supply `continue_url`. Headscale creates and binds the user at the first Tailscale device login. Private pending accounts require owner binding and approval.
+Password login returns `{"authenticated":true}` or `{"two_factor":true}`. The latter uses a short-lived `headdeck_auth` Cookie for the TOTP step. Provider login redirects back to the application or its second-factor page. Provider auto-registration uses `server.web.default_role` (`pending` or `member`, default `pending`), independently of Headscale user creation. An unbound public member receives `device_registration:true` in `/api/session`, with no network permissions; a pending device OIDC request can still supply `continue_url`. Headscale creates and binds the user at the first Tailscale device login. Private pending accounts require administrator or owner binding and approval.
 
 Authenticated, approved sessions also receive `login_server`, the public Headscale URL derived from its managed OIDC callback. Web uses it to generate `tailscale up --login-server=…` in the Add device dialog. It is independent of the internal REST API address and does not contain an auth key. Public members can use this dialog before their first Headscale binding.
 
@@ -87,7 +87,7 @@ The Access control page uses searchable selection lists populated from the exist
 
 | Method | Path | Required permission |
 | --- | --- | --- |
-| GET / PATCH | `/api/settings` | `settings.read` / `settings.write`; Web settings additionally require owner |
+| GET / PATCH | `/api/settings` | `settings.read` / `settings.write`; Web settings additionally require `accounts.read` / `accounts.write` |
 | GET / PATCH / DELETE | `/api/headscale/config` | `settings.read` for GET, `settings.write` for draft changes |
 | POST | `/api/headscale/config/apply` | `settings.write` and `service.manage` |
 | GET / PUT / DELETE | `/api/dns` | `dns.read` for GET, `dns.write` for draft changes |
@@ -108,7 +108,7 @@ File paths (`token_file`, `session_key_file`, TLS files and the OIDC signing key
 
 ## Account administration
 
-All routes below require owner access (`accounts.read` or `accounts.write`). Responses from the list and identity endpoints are arrays.
+All routes below require administrator or owner access (`accounts.read` or `accounts.write`). Responses from the list and identity endpoints are arrays.
 
 | Method | Path | Behavior |
 | --- | --- | --- |

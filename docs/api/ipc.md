@@ -53,21 +53,21 @@ Unless noted, requests use the [shared mutation bodies](README.md#shared-mutatio
 | GET / PUT / DELETE | `/api/v1/policy` | Read, save or discard raw policy draft |
 | POST | `/api/v1/policy/check` | Validate policy, body `{"policy":"...","revision":"..."}` |
 | POST | `/api/v1/policy/apply` | Apply policy |
-| GET / POST | `/api/v1/accounts` | List or create Headdeck accounts; owner only |
-| PUT | `/api/v1/accounts/{id}` | Update account; owner only |
-| GET / POST / DELETE | `/api/v1/accounts/{id}/identities` | List, bind or detach identities; owner only |
-| PUT | `/api/v1/accounts/{id}/password` | Set account username/password; owner only |
-| GET / POST | `/api/v1/accounts/{id}/security` | Read security or perform reset/revocation; owner only |
-| GET | `/api/v1/login-providers` | Custom providers; owner only |
-| PUT / DELETE | `/api/v1/login-providers/{id}` | Save or delete a custom provider; owner only |
+| GET / POST | `/api/v1/accounts` | List or create Headdeck accounts; administrator or owner only |
+| PUT | `/api/v1/accounts/{id}` | Update account; administrator or owner only |
+| GET / POST / DELETE | `/api/v1/accounts/{id}/identities` | List, bind or detach identities; administrator or owner only |
+| PUT | `/api/v1/accounts/{id}/password` | Set account username/password; administrator or owner only |
+| GET / POST | `/api/v1/accounts/{id}/security` | Read security or perform reset/revocation; administrator or owner only |
+| GET | `/api/v1/login-providers` | Custom providers; administrator or owner only |
+| PUT / DELETE | `/api/v1/login-providers/{id}` | Save or delete a custom provider; administrator or owner only |
 
 Account lists use `{"accounts":[]}`; identity lists use `{"bindings":[]}`. These differ from Web arrays. IPC provider listing returns custom definitions only; built-in provider settings belong to `/api/v1/settings`.
 
-Raw policy save sends `{"revision":"...","policy":"..."}`. Applying drafts additionally requires `service.manage`. Setting updates containing `server.web.*` require owner access. Node ownership mutation is named `/user` in IPC and `/owner` in Web.
+Raw policy save sends `{"revision":"...","policy":"..."}`. Applying drafts additionally requires `service.manage`. Setting updates containing `server.web.*` require administrator or owner access. Node ownership mutation is named `/user` in IPC and `/owner` in Web.
 
 Headscale management starts automatically after the Web listener opens. Login apply/recover remain local maintenance endpoints and have no request body. They return `202` with an operation; inspect its final state rather than treating acceptance as completion. Apply rejects incomplete user mappings before stopping Headscale. See [the takeover sequence](../architecture.md#headscale-oidc-provider).
 
-IPC does not expose personal browser login, Passkey enrollment or device-session routes. The TUI uses owner administration routes for credential resets and revocation.
+IPC does not expose personal browser login, Passkey enrollment or device-session routes. The TUI uses account administration routes for credential resets and revocation.
 
 ## SSE example
 

@@ -450,7 +450,7 @@
   "the last owner cannot be disabled or demoted": "不能停用或降低最后一个所有者账户的权限",
   "username is managed by the linked Headscale user": "用户名由绑定的 Headscale 用户管理",
   "Headscale binding": "Headscale 绑定",
-  "owner required": "需要所有者权限",
+  "administrator required": "需要管理员权限",
   "invalid username": "用户名格式不正确",
   "Reset 2FA": "重置两步验证",
   "Reset": "重置",

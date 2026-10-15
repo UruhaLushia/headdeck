@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/UruhaLushia/headdeck/internal/auth/accounts"
+	"github.com/UruhaLushia/headdeck/internal/auth/principal"
 	"github.com/pquerna/otp/totp"
 	"net/http"
 	"net/http/httptest"
@@ -22,6 +23,61 @@ func namedCookie(t *testing.T, rec *httptest.ResponseRecorder, name string) *htt
 	t.Fatalf("missing %s cookie", name)
 	return nil
 }
+
+func TestAccountAdministrationRoles(t *testing.T) {
+	for _, role := range []principal.Role{principal.RolePending, principal.RoleMember, principal.RoleAdmin, principal.RoleOwner} {
+		t.Run(string(role), func(t *testing.T) {
+			srv, svc, _ := testWebServer(t)
+			ctx := context.Background()
+			identity := accounts.VerifiedIdentity{Identity: accounts.Identity{Issuer: "https://login.example", Subject: "actor"}}
+			actor, err := svc.LoginAccount(ctx, identity, true)
+			if err != nil {
+				t.Fatal(err)
+			}
+			actor.Role = role
+			if actor, err = srv.credentials.Save(ctx, *actor); err != nil {
+				t.Fatal(err)
+			}
+			target, err := svc.SaveAccount(ctx, "", accounts.Account{Label: "Other account", Role: principal.RolePending})
+			if err != nil {
+				t.Fatal(err)
+			}
+			raw, err := srv.issueAccount(actor, identity, "")
+			if err != nil {
+				t.Fatal(err)
+			}
+			cookies := []*http.Cookie{{Name: sessionCookie, Value: raw}}
+			headers := map[string]string{"X-Requested-With": "headdeck"}
+			for _, path := range []string{"/api/account/security", "/api/sessions"} {
+				if out := request(t, srv, "GET", path, "", headers, cookies); out.Code != http.StatusOK {
+					t.Fatalf("personal access %s: %d %s", path, out.Code, out.Body.String())
+				}
+			}
+			want := http.StatusForbidden
+			if role == principal.RoleAdmin || role == principal.RoleOwner {
+				want = http.StatusOK
+			}
+			path := "/api/accounts/" + target.ID
+			for _, action := range []struct{ method, path, body string }{
+				{"GET", "/api/accounts", ""},
+				{"POST", "/api/accounts", `{"label":"New account","role":"pending"}`},
+				{"PUT", path, `{"label":"Updated account","role":"member"}`},
+				{"GET", path + "/identities", ""},
+				{"POST", path + "/identities", `{"issuer":"https://login.example","subject":"target"}`},
+				{"DELETE", path + "/identities", `{"issuer":"https://login.example","subject":"target"}`},
+				{"PUT", path + "/password", `{"username":"target","password":"target-password-123"}`},
+				{"GET", path + "/security", ""},
+				{"POST", path + "/security", `{"action":"sessions.revoke"}`},
+			} {
+				out := request(t, srv, action.method, action.path, action.body, headers, cookies)
+				if out.Code != want {
+					t.Fatalf("%s %s: %d %s, want %d", action.method, action.path, out.Code, out.Body.String(), want)
+				}
+			}
+		})
+	}
+}
+
 func TestPasswordSecondFactorAndRevocation(t *testing.T) {
 	srv, _, _ := testWebServer(t)
 	ctx := context.Background()
@@ -176,11 +232,12 @@ func TestVerifiedProviderBindingAndIsolation(t *testing.T) {
 	if err != nil || resolved.ID != a.ID {
 		t.Fatal("binding resolved to another account")
 	}
-	other, err := svc.LoginAccount(ctx, accounts.VerifiedIdentity{Identity: accounts.Identity{Issuer: "https://other.example", Subject: "new-user"}, Name: "Other"}, true)
+	otherIdentity := accounts.VerifiedIdentity{Identity: accounts.Identity{Issuer: "https://other.example", Subject: "new-user"}, Name: "Other"}
+	other, err := svc.LoginAccount(ctx, otherIdentity, true)
 	if err != nil {
 		t.Fatal(err)
 	}
-	otherRaw, err := srv.issueAccount(other, accounts.VerifiedIdentity{Identity: accounts.Identity{Issuer: "https://other.example", Subject: "new-user"}}, "")
+	otherRaw, err := srv.issueAccount(other, otherIdentity, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -191,13 +248,36 @@ func TestVerifiedProviderBindingAndIsolation(t *testing.T) {
 	if !strings.Contains(finish.Header().Get("Location"), "invalid_flow") {
 		t.Fatal("cross-session binding accepted")
 	}
-	for _, binding := range bindings {
-		if err = srv.credentials.UnbindSelf(ctx, a.ID, binding.Identity); err != nil && len(bindings) > 1 {
-			break
-		}
+	foreign, err := json.Marshal(otherIdentity.Identity)
+	if err != nil {
+		t.Fatal(err)
 	}
+	denied := request(t, srv, "DELETE", "/api/account/identities", string(foreign), headers, []*http.Cookie{cookie})
+	if denied.Code != http.StatusBadRequest {
+		t.Fatalf("another account's identity was not protected: %d %s", denied.Code, denied.Body.String())
+	}
+	payload, err := json.Marshal(bindings[0].Identity)
+	if err != nil {
+		t.Fatal(err)
+	}
+	unlinked := request(t, srv, "DELETE", "/api/account/identities", string(payload), headers, []*http.Cookie{cookie})
+	if unlinked.Code != http.StatusOK {
+		t.Fatalf("self unlink failed: %d %s", unlinked.Code, unlinked.Body.String())
+	}
+	cookie = namedCookie(t, unlinked, sessionCookie)
 	remaining, err := srv.credentials.Bindings(ctx, a.ID)
 	if err != nil || len(remaining) != 1 {
-		t.Fatal("last sign-in method not protected")
+		t.Fatal("self unlink removed the wrong number of identities")
+	}
+	payload, err = json.Marshal(remaining[0].Identity)
+	if err != nil {
+		t.Fatal(err)
+	}
+	denied = request(t, srv, "DELETE", "/api/account/identities", string(payload), headers, []*http.Cookie{cookie})
+	if denied.Code != http.StatusBadRequest || !strings.Contains(denied.Body.String(), "cannot remove the last sign-in method") {
+		t.Fatalf("last sign-in method not protected: %d %s", denied.Code, denied.Body.String())
+	}
+	if _, err := srv.credentials.Resolve(ctx, otherIdentity.Identity); err != nil {
+		t.Fatal("another account's identity was removed", err)
 	}
 }

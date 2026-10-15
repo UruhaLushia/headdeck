@@ -94,7 +94,10 @@ export function SecurityMethods({
                   aria-label={t("Unlink")}
                   onPress={() =>
                     confirm("Unlink account", async () => {
-                      await api.delete("/api/account/identities", identity);
+                      await api.delete("/api/account/identities", {
+                        issuer: identity.issuer,
+                        subject: identity.subject,
+                      });
                       await refresh();
                       showMain();
                     })

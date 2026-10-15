@@ -51,7 +51,7 @@ func (s *Server) handleSettingsSet(w http.ResponseWriter, r *http.Request) {
 	p, _ := principal.FromContext(r.Context())
 	for key := range req.Changes {
 		if policy.OwnerSetting(key) && !p.Has(principal.PermAccountsWrite) {
-			writeError(r.Context(), w, protocol.NewError(protocol.CodePermissionDenied, "owner required"))
+			writeError(r.Context(), w, protocol.NewError(protocol.CodePermissionDenied, "administrator required"))
 			return
 		}
 	}
