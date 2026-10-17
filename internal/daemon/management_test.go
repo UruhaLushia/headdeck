@@ -178,7 +178,10 @@ func TestResourceDiffStream(t *testing.T) {
 	t.Cleanup(func() {
 		cancel()
 		select {
-		case <-done:
+		case err := <-done:
+			if !errors.Is(err, context.Canceled) {
+				t.Errorf("canceled event stream: %v", err)
+			}
 		case <-time.After(time.Second):
 			t.Error("watch did not stop")
 		}

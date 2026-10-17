@@ -76,18 +76,18 @@ export function SettingsPage({
       >
         <Tabs.ListContainer>
           <Tabs.List aria-label={t("Settings")}>
-            <Tabs.Tab id="headdeck">
+            <Tabs.Tab id="headdeck" className="w-auto">
               Headdeck
               <Tabs.Indicator />
             </Tabs.Tab>
-            <Tabs.Tab id="headscale">
+            <Tabs.Tab id="headscale" className="w-auto">
               Headscale
               <Tabs.Indicator />
             </Tabs.Tab>
           </Tabs.List>
         </Tabs.ListContainer>
         {(["headdeck", "headscale"] as const).map((value) => (
-          <Tabs.Panel key={value} id={value} className="min-w-0 space-y-5">
+          <Tabs.Panel key={value} id={value} className="min-w-0 space-y-5 p-0">
             {mode === value && (
               <>
                 {mode === "headscale" && settings && (

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -167,7 +168,10 @@ func TestUIDAuthorizationAndRevocation(t *testing.T) {
 		t.Fatal("member changed settings")
 	}
 	select {
-	case <-ended:
+	case err := <-ended:
+		if !errors.Is(err, io.ErrUnexpectedEOF) {
+			t.Fatalf("revoked event stream: %v", err)
+		}
 	case <-time.After(3 * time.Second):
 		t.Fatal("role change did not close SSE")
 	}
