@@ -119,14 +119,14 @@ export function AddDeviceDialog({
                       <Tabs.Panel
                         id="command"
                         shouldForceMount
-                        className="col-start-1 row-start-1 min-w-0 p-0 data-inert:invisible"
+                        className="static col-start-1 row-start-1 min-w-0 p-0 data-inert:invisible"
                       >
                         {commandContent}
                       </Tabs.Panel>
                       <Tabs.Panel
                         id="nodekey"
                         shouldForceMount
-                        className="col-start-1 row-start-1 min-w-0 space-y-4 p-0 data-inert:invisible"
+                        className="static col-start-1 row-start-1 min-w-0 space-y-4 p-0 data-inert:invisible"
                       >
                         <TextField
                           isRequired
