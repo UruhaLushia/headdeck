@@ -1,5 +1,5 @@
 import { t } from "../lib/i18n";
-import { Drawer } from "@heroui/react";
+import { Drawer } from "vaul";
 import { LanguageMenu } from "./LanguageMenu";
 import { AccountMenu } from "./AccountMenu";
 import { ThemeMenu } from "./ThemeMenu";
@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   Users,
   UserRoundCog,
+  X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
@@ -137,34 +138,41 @@ export function Layout({
       </aside>
       <header className="fixed inset-x-0 top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-surface px-4">
         <div className="flex items-center gap-2">
-          <Drawer isOpen={mobile} onOpenChange={setMobile}>
-            <Drawer.Trigger
-              aria-label={t("Open navigation")}
-              className="flex size-10 items-center justify-center rounded-xl bg-default text-foreground outline-none focus-visible:ring-2 focus-visible:ring-accent lg:hidden"
-            >
-              <Menu size={20} />
+          <Drawer.Root open={mobile} onOpenChange={setMobile} direction="left" autoFocus>
+            <Drawer.Trigger asChild>
+              <button
+                type="button"
+                aria-label={t("Open navigation")}
+                className="flex size-10 items-center justify-center rounded-xl bg-default text-foreground outline-none focus-visible:ring-2 focus-visible:ring-accent lg:hidden"
+              >
+                <Menu size={20} />
+              </button>
             </Drawer.Trigger>
-            <Drawer.Backdrop className="navigation-backdrop">
-              <Drawer.Content placement="left">
-                <Drawer.Dialog
-                  aria-label={t("Main navigation")}
-                  className="navigation-drawer"
-                  style={{ touchAction: "pan-y" }}
-                >
-                  <Drawer.Header className="m-0 flex min-h-14 shrink-0 flex-row items-center justify-between border-b border-border px-4 pt-[env(safe-area-inset-top)]">
-                    <Drawer.Heading className="text-base font-semibold">Headdeck</Drawer.Heading>
-                    <Drawer.CloseTrigger
+            <Drawer.Portal>
+              <Drawer.Overlay className="navigation-backdrop" />
+              <Drawer.Content
+                className="navigation-drawer"
+                aria-describedby={undefined}
+                style={{ touchAction: "pan-y" }}
+              >
+                <div className="flex min-h-14 shrink-0 items-center justify-between gap-3 border-b border-border px-4 pt-[env(safe-area-inset-top)]">
+                  <Drawer.Title className="text-base font-semibold">Headdeck</Drawer.Title>
+                  <Drawer.Close asChild>
+                    <button
+                      type="button"
                       aria-label={t("Close navigation")}
-                      className="static size-9 rounded-lg"
-                    />
-                  </Drawer.Header>
-                  <Drawer.Body className="m-0 min-h-0 flex-1 overflow-y-auto overscroll-contain p-0 pb-[env(safe-area-inset-bottom)]">
-                    {nav}
-                  </Drawer.Body>
-                </Drawer.Dialog>
+                      className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-default text-muted outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-accent"
+                    >
+                      <X size={16} />
+                    </button>
+                  </Drawer.Close>
+                </div>
+                <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[env(safe-area-inset-bottom)]">
+                  {nav}
+                </div>
               </Drawer.Content>
-            </Drawer.Backdrop>
-          </Drawer>
+            </Drawer.Portal>
+          </Drawer.Root>
           <a
             href={`#/${allowed[0]?.id ?? "overview"}`}
             className="text-sm font-semibold tracking-tight"

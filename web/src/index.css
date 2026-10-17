@@ -99,24 +99,35 @@ input {
   -webkit-tap-highlight-color: transparent;
 }
 
-.navigation-drawer[data-placement="left"] {
-  --drawer-enter-duration: 180ms;
-  --drawer-exit-duration: 140ms;
-
+.navigation-drawer {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
   width: max-content;
   max-width: calc(100vw - 3rem);
-  padding: 0;
+  background: var(--surface);
+  color: var(--foreground);
+  outline: none;
   border-right: 1px solid var(--border);
   border-start-end-radius: 1rem;
   border-end-end-radius: 1rem;
 }
 
 .navigation-backdrop {
-  transition-duration: 180ms;
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgb(0 0 0 / 40%);
 }
 
-.navigation-backdrop[data-exiting="true"] {
-  transition-duration: 140ms;
+@media (prefers-reduced-motion: reduce) {
+  .navigation-drawer,
+  .navigation-backdrop {
+    animation-duration: 0s !important;
+    transition-duration: 0s !important;
+  }
 }
 
 .auth-card {
