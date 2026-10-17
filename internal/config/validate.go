@@ -43,6 +43,9 @@ func (c *Config) Validate() error {
 	if c.Headscale.MaxRetries < 0 || c.Headscale.MaxRetries > 10 {
 		add("headscale.max_retries must be between 0 and 10")
 	}
+	if c.Server.LogFormat != "text" && c.Server.LogFormat != "json" {
+		add("server.log_format must be text or json")
+	}
 	switch c.Features.ServiceControlDriver {
 	case "", "auto", "systemd", "none":
 	default:

@@ -323,11 +323,11 @@ func TestAccountApprovalScopeAndRevocation(t *testing.T) {
 	}
 	reloads := 0
 	srv.reload = func() { reloads++ }
-	saved := request(t, srv, "PATCH", "/api/settings", `{"changes":{"server.log_level":"warn"}}`, map[string]string{"X-Requested-With": "headdeck"}, []*http.Cookie{cookie})
+	saved := request(t, srv, "PATCH", "/api/settings", `{"changes":{"server.log_level":"warn","server.log_format":"json"}}`, map[string]string{"X-Requested-With": "headdeck"}, []*http.Cookie{cookie})
 	if saved.Code != http.StatusOK || reloads != 1 {
 		t.Fatal("successful settings write did not automatically reload", saved.Code, reloads)
 	}
-	invalid := request(t, srv, "PATCH", "/api/settings", `{"changes":{"server.log_json":"invalid"}}`, map[string]string{"X-Requested-With": "headdeck"}, []*http.Cookie{cookie})
+	invalid := request(t, srv, "PATCH", "/api/settings", `{"changes":{"server.log_format":"invalid"}}`, map[string]string{"X-Requested-With": "headdeck"}, []*http.Cookie{cookie})
 	if invalid.Code == http.StatusOK || reloads != 1 {
 		t.Fatal("failed settings write triggered a reload")
 	}

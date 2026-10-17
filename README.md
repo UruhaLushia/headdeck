@@ -7,6 +7,7 @@ Manage [Headscale](https://headscale.net) from your terminal or browser.
 - View service status and manage devices, users and authentication keys.
 - Configure DNS, access rules, subnet routes and exit nodes.
 - Edit Headscale settings and start, stop or restart the service.
+- View recent Headdeck and Headscale service logs in Web, with level filters and search.
 - Optionally enable Web diagnostics to inspect Headscale runtime metrics and read-only debug snapshots.
 - Manage accounts, Headscale user bindings and login providers.
 - Sign in with a password, GitHub, OIDC or Passkey, with two-factor authentication support.

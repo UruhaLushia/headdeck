@@ -138,6 +138,7 @@ func New(opts Options) (*Server, error) {
 	s.securityRoutes(mux)
 	s.providerRoutes(mux)
 	mux.HandleFunc("GET /api/status", s.withSession(s.requirePermission(principal.PermSystemRead, s.handleStatus)))
+	mux.HandleFunc("GET /api/logs/{source}", s.withSession(s.requirePermission(principal.PermAuditRead, s.handleLogs)))
 	mux.HandleFunc("GET /api/headscale/diagnostics/{section}", s.withSession(s.requirePermission(principal.PermSystemRead, s.withDiagnostics(s.handleDiagnostic))))
 	mux.HandleFunc("GET /api/debug/pprof/", s.withSession(s.requirePermission(principal.PermSystemRead, s.withDiagnostics(s.handleDebug))))
 	mux.HandleFunc("GET /api/status/stream", s.withSession(s.requirePermission(principal.PermSystemRead, s.handleStatusStream)))

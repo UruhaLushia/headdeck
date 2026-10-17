@@ -7,7 +7,6 @@ import (
 	"strings"
 )
 
-func (c *Config) LogJSONEnabled() bool { return c.Server.LogJSON }
 func (c *Config) LogLevel() string {
 	if c.Server.LogLevel != "" {
 		return c.Server.LogLevel

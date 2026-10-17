@@ -49,7 +49,7 @@ func newDaemonCommand(rt *Runtime) *cobra.Command {
 					ConfigPath:    rt.ConfigPath,
 					Authorization: &grants.Store{Path: rt.Authorization},
 					LogLevel:      cfg.LogLevel(),
-					LogJSON:       cfg.LogJSONEnabled(),
+					LogFormat:     cfg.Server.LogFormat,
 				})
 				if err != nil {
 					return err

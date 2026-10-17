@@ -7,6 +7,7 @@
 - 查看服务状态，管理设备、用户和认证密钥。
 - 配置 DNS、访问控制、子网路由和出口节点。
 - 管理 Headscale 配置，启动、停止或重启服务。
+- 在 Web 查看 Headdeck 和 Headscale 的近期日志，支持按级别筛选和搜索。
 - 按需启用 Web 调试，查看 Headscale 运行指标和只读调试快照。
 - 管理账户、Headscale 用户绑定和登录提供方。
 - 支持密码、GitHub、OIDC、Passkey 和两步验证。

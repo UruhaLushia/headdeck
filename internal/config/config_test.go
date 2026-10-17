@@ -87,6 +87,7 @@ func TestValidateRejectsUnsafePaths(t *testing.T) {
 		}, "CIDR"},
 		{"bad socket mode", func(c *Config) { c.IPC.SocketMode = "99" }, "octal"},
 		{"negative retries", func(c *Config) { c.Headscale.MaxRetries = -1 }, "max_retries"},
+		{"boolean log format", func(c *Config) { c.Server.LogFormat = "true" }, "log_format"},
 		{"unknown driver", func(c *Config) { c.Features.ServiceControlDriver = "docker" }, "service_control_driver"},
 		{"unsafe registration role", func(c *Config) { c.Server.Web.DefaultRole = "owner" }, "default_role"},
 	}

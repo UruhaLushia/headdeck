@@ -32,6 +32,15 @@ func (s *Server) handleDiagnostic(w http.ResponseWriter, r *http.Request) {
 	s.writeJSON(w, http.StatusOK, out)
 }
 
+func (s *Server) handleLogs(w http.ResponseWriter, r *http.Request) {
+	out, err := s.svc.Logs(r.Context(), r.PathValue("source"))
+	if err != nil {
+		s.writeError(w, protocol.FromError(err))
+		return
+	}
+	s.writeJSON(w, http.StatusOK, out)
+}
+
 func (s *Server) status(ctx context.Context, p *principal.Principal, refresh bool) (*protocol.Status, error) {
 	status, err := s.svc.Status(ctx, refresh)
 	if err != nil {

@@ -87,7 +87,10 @@ export function Empty({ children }: { children: ReactNode }) {
 export function DataTable({ columns, children }: { columns: string[]; children: ReactNode }) {
   return (
     <div className="relative min-w-0 overflow-x-auto rounded-2xl border border-border bg-surface">
-      <table role="table" className="resource-table w-full text-left text-sm">
+      <table
+        role="table"
+        className={`resource-table w-full text-left text-sm ${columns.includes("") ? "resource-table-actions" : ""}`}
+      >
         <thead className="border-b border-border text-muted">
           <tr>
             {columns.map((column) => (

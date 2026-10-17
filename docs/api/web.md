@@ -79,6 +79,14 @@ Headdeck's own Go pprof interface is available at `/api/debug/pprof/` after enab
 
 Manual device registration uses the pending registration key from the device sign-in URL (`hskey-authreq-…` on current Headscale, Node Key on older versions). It does not accept a pre-auth key or create a Headscale user. Omitting `user_id` uses the session's Headscale binding. A member cannot select another user; administrators and owners may select an existing user. Successful registration publishes the normal device update event.
 
+## Service logs
+
+`GET /api/logs/{source}` requires `audit.read` (administrator or owner). The sources are `headdeck` and `headscale`; they resolve to Headdeck's installed systemd unit and the locally configured Headscale service unit. Callers cannot specify a unit, command, file path or journal options. This feature requires `journalctl` and permission to read the system journal; it does not depend on the Debug setting.
+
+Responses contain `source`, `collected_at` and `entries`, with `time` (RFC 3339), `level` (`debug`, `info`, `warn`, `error`) and `message`. Each request reads the latest 200 entries in reverse chronological order, with a five-second timeout and a 2 MiB output limit. Application JSON/text levels take precedence over journal priority. Known credential prefixes are redacted and ANSI escape sequences are removed. Log messages are rendered as plain text. Responses are not HTTP-cacheable.
+
+The Logs page (`#/logs`) fetches a snapshot on access or manual refresh and filters that snapshot by level or search text. Messages are displayed as indented JSON: application JSON fields are preserved, while plain-text messages (including systemd lifecycle records) are wrapped with `time`, `level` and `msg`. This presentation is independent of `server.log_format`, which accepts `text` or `json` and controls application output. The page has no periodic polling or log stream. Members, pending accounts and unauthenticated callers cannot read service logs.
+
 ## Settings, configuration and services
 
 DNS switches, the tailnet domain, global nameservers and search domains use the same inline controls as Settings. Split DNS rules and custom records keep multi-field detail dialogs. Edits save to the DNS draft; the existing Apply action activates the draft and restarts Headscale only when required.

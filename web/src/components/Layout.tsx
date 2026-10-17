@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   Menu,
   Activity,
+  ScrollText,
   Network,
   Settings2,
   ShieldCheck,
@@ -40,6 +41,12 @@ export const pages = [
     label: "Access accounts",
     icon: UserRoundCog,
     permission: "accounts.read",
+  },
+  {
+    id: "logs",
+    label: "Logs",
+    icon: ScrollText,
+    permission: "audit.read",
   },
   {
     id: "diagnostics",
@@ -95,7 +102,7 @@ export function Layout({
     <nav aria-label={t("Main navigation")} className="space-y-5 px-3 py-4">
       {[
         { label: "Network", ids: ["overview", "nodes", "users", "keys", "dns", "policy"] },
-        { label: "Administration", ids: ["accounts", "diagnostics", "settings"] },
+        { label: "Administration", ids: ["accounts", "logs", "diagnostics", "settings"] },
       ].map((group) => {
         const items = allowed.filter((item) => group.ids.includes(item.id));
         if (!items.length) return null;

@@ -53,7 +53,7 @@ The complete mapping is in [protocol/errors.go](../../internal/ipc/protocol/erro
 | Create Headscale user | `{"name":"alice","display_name":"Alice","email":"alice@example.com"}`; the last two fields are optional |
 | Delete Headscale user | `{"confirm_name":"alice"}` |
 | Create authentication key | `{"user":"alice","reusable":false,"ephemeral":false,"expiration":"2027-01-01T00:00:00Z","acl_tags":[]}` |
-| Update Headdeck settings | `{"changes":{"server.log_level":"warn"}}` |
+| Update Headdeck settings | `{"changes":{"server.log_level":"warn","server.log_format":"json"}}` |
 | Update managed Headscale settings | `{"revision":"current-revision","values":{"prefixes.allocation":"sequential"}}` |
 | Apply a configuration draft | `{"revision":"current-revision"}` |
 | Bind or detach identity | `{"issuer":"https://identity.example.com","subject":"stable-subject"}` |

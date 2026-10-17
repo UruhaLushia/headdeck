@@ -36,7 +36,7 @@ type Options struct {
 	ConfigPath          string
 	Authorization       *grants.Store
 	LogLevel            string
-	LogJSON             bool
+	LogFormat           string
 	Logger              *log.Logger
 	Stdout              *os.File
 }
@@ -73,7 +73,7 @@ func New(opts Options) (*Daemon, error) {
 	}
 	logger := opts.Logger
 	if logger == nil {
-		logger = log.New(log.Options{Level: opts.LogLevel, JSON: opts.LogJSON})
+		logger = log.New(log.Options{Level: opts.LogLevel, JSON: opts.LogFormat == "json"})
 	}
 	store := opts.Authorization
 	if store == nil {

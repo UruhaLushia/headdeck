@@ -18,6 +18,7 @@ const pageLoaders = {
     import("../pages/settings/SettingsPage").then((m) => ({ default: m.SettingsPage })),
   diagnostics: () =>
     import("../pages/diagnostics/DiagnosticsPage").then((m) => ({ default: m.DiagnosticsPage })),
+  logs: () => import("../pages/logs/LogsPage").then((m) => ({ default: m.LogsPage })),
 };
 
 type PageComponent = ComponentType<{

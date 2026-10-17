@@ -33,7 +33,7 @@ type IPCConfig struct {
 type ServerConfig struct {
 	Diagnostics bool      `json:"diagnostics"`
 	LogLevel    string    `json:"log_level"`
-	LogJSON     bool      `json:"log_json"`
+	LogFormat   string    `json:"log_format"`
 	Web         WebConfig `json:"web"`
 }
 
@@ -98,7 +98,8 @@ func Default() *Config {
 			SocketMode: "0666",
 		},
 		Server: ServerConfig{
-			LogLevel: "info",
+			LogLevel:  "info",
+			LogFormat: "text",
 			//nolint:gosec // the web token and session key fields hold paths, not secrets
 			Web: WebConfig{
 				Enabled:        false,

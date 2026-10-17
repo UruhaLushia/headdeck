@@ -169,6 +169,88 @@ func TestReadOnlyDiagnosticsAndAuthorization(t *testing.T) {
 
 const testToken = "correct-horse-battery-staple"
 
+func TestServiceLogsAuthorizationAndBounds(t *testing.T) {
+	dir := t.TempDir()
+	arguments := filepath.Join(dir, "arguments")
+	data := filepath.Join(dir, "journal.json")
+	script := "#!/bin/sh\nprintf '%s\\n' \"$@\" > \"$JOURNAL_ARGS\"\nexec /usr/bin/cat \"$JOURNAL_DATA\"\n"
+	if err := os.WriteFile(filepath.Join(dir, "journalctl"), []byte(script), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("PATH", dir)
+	t.Setenv("JOURNAL_ARGS", arguments)
+	t.Setenv("JOURNAL_DATA", data)
+	fixture := `{"__REALTIME_TIMESTAMP":"1700000000000000","PRIORITY":"6","MESSAGE":"{\"level\":\"error\",\"msg\":\"hskey-secret\"}"}
+{"__REALTIME_TIMESTAMP":"1700000000000000","PRIORITY":"6","MESSAGE":"time=now level=WARN msg=retry"}
+{"__REALTIME_TIMESTAMP":"1700000000000000","PRIORITY":"7","MESSAGE":"\u001b[31mdebug message\u001b[0m"}
+{"__REALTIME_TIMESTAMP":"1700000000000000","PRIORITY":"6","MESSAGE":[98,105,110,97,114,121]}
+{"__REALTIME_TIMESTAMP":"1700000000000000","PRIORITY":"6","MESSAGE":"2026-10-18T10:05:00Z \u001b[31mERR\u001b[0m failed to start"}
+`
+	if err := os.WriteFile(data, []byte(fixture), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	srv, svc, _ := testWebServer(t)
+	for _, role := range []principal.Role{"", principal.RolePending, principal.RoleMember} {
+		var cookies []*http.Cookie
+		want := http.StatusUnauthorized
+		if role != "" {
+			want = http.StatusForbidden
+			cookies = []*http.Cookie{{Name: sessionCookie, Value: issueTestSession(t, srv.sessions, string(role), role, srv.now())}}
+		}
+		if out := request(t, srv, "GET", "/api/logs/headdeck", "", nil, cookies); out.Code != want {
+			t.Fatalf("%s log access: %d", role, out.Code)
+		}
+	}
+	owner := login(t, srv)
+	if out := request(t, srv, "GET", "/api/logs/sshd.service", "", nil, []*http.Cookie{owner}); out.Code != http.StatusBadRequest {
+		t.Fatal("arbitrary log source accepted", out.Code)
+	}
+	if _, err := os.Stat(arguments); !os.IsNotExist(err) {
+		t.Fatal("rejected request executed journalctl")
+	}
+	admin := &http.Cookie{Name: sessionCookie, Value: issueTestSession(t, srv.sessions, "administrator", principal.RoleAdmin, srv.now())}
+	svc.Config().Features.ServiceUnit = "custom-headscale.service"
+	for _, test := range []struct {
+		cookie *http.Cookie
+		source string
+		unit   string
+	}{{owner, "headdeck", "headdeck.service"}, {admin, "headscale", "custom-headscale.service"}} {
+		out := request(t, srv, "GET", "/api/logs/"+test.source+"?unit=sshd.service&lines=999999", "", nil, []*http.Cookie{test.cookie})
+		var snapshot protocol.LogSnapshot
+		if out.Code != http.StatusOK || json.Unmarshal(out.Body.Bytes(), &snapshot) != nil || len(snapshot.Entries) != 5 {
+			t.Fatal("invalid log snapshot", out.Code, out.Body.String())
+		}
+		if snapshot.Source != test.source || snapshot.CollectedAt.IsZero() || out.Header().Get("Cache-Control") != "no-store" {
+			t.Fatal("invalid log metadata")
+		}
+		if snapshot.Entries[0].Level != "error" || strings.Contains(snapshot.Entries[0].Message, "hskey-secret") || snapshot.Entries[1].Level != "warn" || snapshot.Entries[2].Level != "debug" || snapshot.Entries[2].Message != "debug message" || snapshot.Entries[3].Message != "binary" || snapshot.Entries[4].Level != "error" {
+			t.Fatalf("log levels or sanitization failed: %+v", snapshot.Entries)
+		}
+		args, err := os.ReadFile(arguments)
+		if err != nil || !strings.Contains(string(args), "--unit="+test.unit+"\n") || !strings.Contains(string(args), "--lines=200\n") || strings.Contains(string(args), "sshd") {
+			t.Fatal("journal arguments escaped scope", string(args), err)
+		}
+	}
+	if err := os.WriteFile(data, []byte("invalid json"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if out := request(t, srv, "GET", "/api/logs/headdeck", "", nil, []*http.Cookie{owner}); out.Code != http.StatusInternalServerError {
+		t.Fatal("invalid journal data accepted", out.Code)
+	}
+	if err := os.WriteFile(data, []byte(strings.Repeat("x", (2<<20)+1)), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if out := request(t, srv, "GET", "/api/logs/headdeck", "", nil, []*http.Cookie{owner}); out.Code != http.StatusServiceUnavailable || out.Body.Len() > 1000 {
+		t.Fatal("oversized log output accepted", out.Code, out.Body.Len())
+	}
+	if err := os.Remove(filepath.Join(dir, "journalctl")); err != nil {
+		t.Fatal(err)
+	}
+	if out := request(t, srv, "GET", "/api/logs/headdeck", "", nil, []*http.Cookie{owner}); out.Code != http.StatusServiceUnavailable {
+		t.Fatal("missing journal reader not reported", out.Code)
+	}
+}
+
 func TestHeaddeckDebugRequiresDiagnosticOptIn(t *testing.T) {
 	srv, _, _ := testWebServer(t)
 	owner := login(t, srv)

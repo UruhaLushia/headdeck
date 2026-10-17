@@ -26,6 +26,7 @@ Every account can manage its own profile, sign-in identities and security. Only 
 | Configuration | Edit supported Headscale settings, save drafts, apply or discard; detect external changes |
 | Service control | Start, stop, restart and reload Headscale; track asynchronous results |
 | Account security | Passwords, multiple OAuth/OIDC identities, GitHub, Passkey, TOTP, recovery codes and device sessions |
+| Logs | Administrators and owners can view recent Headdeck and Headscale service logs, filter by level and search messages; snapshots refresh on access or manually |
 | Headscale login | Headdeck OIDC issuer backed by approved accounts and explicit Headscale bindings; required for Web |
 | Headscale connection | Discover the local listener and Unix management socket; no API key or manual connection settings |
 

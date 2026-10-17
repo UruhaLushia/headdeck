@@ -15,7 +15,7 @@ func settingChoices(key string) []string {
 		"server.web.password_login",
 		"server.web.oidc.enabled", "server.web.oidc.auto_register", "server.web.oidc.disable_token_login",
 		"server.web.github.enabled", "server.web.github.auto_register", "server.web.github.disable_token_login",
-		"server.diagnostics", "server.log_json", "server.web.enabled", "server.web.cookie_secure", "dns.magic_dns", "dns.override_local_dns":
+		"server.diagnostics", "server.web.enabled", "server.web.cookie_secure", "dns.magic_dns", "dns.override_local_dns":
 		return []string{"true", "false"}
 	case "features.service_control_driver":
 		return []string{"auto", "systemd", "none"}
@@ -23,6 +23,8 @@ func settingChoices(key string) []string {
 		return []string{"pending", "member"}
 	case "server.log_level":
 		return []string{"debug", "info", "warn", "error"}
+	case "server.log_format":
+		return []string{"text", "json"}
 	}
 	return nil
 }

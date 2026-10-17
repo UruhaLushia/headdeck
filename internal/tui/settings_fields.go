@@ -18,7 +18,7 @@ func settingLabel(key string) string {
 		"features.service_control_driver":       "Service driver",
 		"features.service_unit":                 "Service unit",
 		"server.diagnostics":                    "Debug",
-		"server.log_json":                       "Logging · JSON output",
+		"server.log_format":                     "Logging · Format",
 		"server.log_level":                      "Logging · Level",
 		"server.web.enabled":                    "Web · Enabled",
 		"server.web.password_login":             "Web · Password login",

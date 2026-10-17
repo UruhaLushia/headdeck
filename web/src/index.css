@@ -174,8 +174,8 @@ input {
   background: var(--surface-secondary);
 }
 
-.resource-table th:last-child,
-.resource-table td:last-child {
+.resource-table-actions th:last-child,
+.resource-table-actions td:last-child {
   width: 3rem;
   text-align: right;
 }
@@ -261,7 +261,7 @@ input {
     content: attr(data-label);
   }
 
-  .resource-table td:first-child {
+  .resource-table-actions td:first-child {
     grid-column: 1 / -1;
     padding-right: 2.5rem;
   }
@@ -275,7 +275,7 @@ input {
     order: 1;
   }
 
-  .resource-table td:last-child {
+  .resource-table-actions td:last-child {
     position: absolute;
     top: 0.75rem;
     right: 0.75rem;
