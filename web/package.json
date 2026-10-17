@@ -20,6 +20,7 @@
     "@heroui/styles": "^3.2.6",
     "echarts": "^6.1.0",
     "lucide-react": "^1.55.0",
+    "prism-react-renderer": "^2.4.1",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
   },

@@ -1,6 +1,8 @@
-import { Input, ListBox, Select, Tabs } from "@heroui/react";
+import { Input, ListBox, Modal, Select, Tabs } from "@heroui/react";
 import { useState } from "react";
+import { dialogStyles } from "../../components/dialogStyles";
 import { DataTable, Empty, Page } from "../../components/Page";
+import { JsonCode } from "../../components/JsonCode";
 import { useResource } from "../../hooks/useResource";
 import { t } from "../../lib/i18n";
 
@@ -48,6 +50,7 @@ export function LogsPage() {
   const [source, setSource] = useState("headdeck");
   const [level, setLevel] = useState("all");
   const [search, setSearch] = useState("");
+  const [selected, setSelected] = useState<LogEntry>();
   const resource = useResource<LogSnapshot>(`/api/logs/${source}`);
   const query = search.trim().toLocaleLowerCase();
   const entries = resource.data?.entries.filter(
@@ -138,11 +141,16 @@ export function LogsPage() {
                         </td>
                         <td
                           data-label={t("Message")}
-                          className="mobile-table-wide w-full min-w-0 align-top"
+                          className="mobile-table-wide w-full min-w-0 align-top sm:max-w-0"
                         >
-                          <pre className="font-mono text-sm leading-relaxed whitespace-pre-wrap wrap-anywhere select-text">
-                            {formatLog(entry)}
-                          </pre>
+                          <button
+                            type="button"
+                            aria-haspopup="dialog"
+                            onClick={() => setSelected(entry)}
+                            className="block w-full cursor-pointer truncate rounded-sm text-left font-mono focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+                          >
+                            {entry.message}
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -163,6 +171,26 @@ export function LogsPage() {
           </Tabs.Panel>
         ))}
       </Tabs>
+      <Modal
+        isOpen={!!selected}
+        onOpenChange={(open) => {
+          if (!open) setSelected(undefined);
+        }}
+      >
+        <Modal.Backdrop className={dialogStyles.backdrop}>
+          <Modal.Container size="lg">
+            <Modal.Dialog className={dialogStyles.dialog}>
+              <Modal.CloseTrigger aria-label={t("Close")} />
+              <Modal.Header className={dialogStyles.header}>
+                <Modal.Heading className={dialogStyles.heading}>{t("Log details")}</Modal.Heading>
+              </Modal.Header>
+              <Modal.Body className={dialogStyles.body}>
+                {selected && <JsonCode code={formatLog(selected)} />}
+              </Modal.Body>
+            </Modal.Dialog>
+          </Modal.Container>
+        </Modal.Backdrop>
+      </Modal>
     </Page>
   );
 }

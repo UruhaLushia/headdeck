@@ -5,6 +5,7 @@
   "View the latest 200 service logs, newest first.": "查看最近 200 条服务日志，最新日志在前。",
   "Log source": "日志来源",
   "Search logs": "搜索日志",
+  "Log details": "日志详情",
   "Search logs…": "搜索日志…",
   "All levels": "全部级别",
   "Error": "错误",
