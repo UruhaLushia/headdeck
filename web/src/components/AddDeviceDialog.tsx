@@ -1,10 +1,49 @@
-import { Alert, Button, Input, Label, Modal, Tabs, TextField } from "@heroui/react";
+import {
+  Accordion,
+  Alert,
+  Button,
+  Input,
+  Label,
+  ListBox,
+  Modal,
+  Select,
+  Switch,
+  Tabs,
+  TextField,
+} from "@heroui/react";
 import { Check, Copy } from "lucide-react";
 import { useRef, useState } from "react";
 import { t } from "../lib/i18n";
 import type { User } from "../lib/types";
 import { Fields } from "./Fields";
 import { dialogStyles } from "./dialogStyles";
+
+const commandTextFields = [
+  {
+    name: "hostname",
+    label: "Device name",
+    placeholder: "Device hostname",
+  },
+  {
+    name: "advertise-routes",
+    label: "Advertise subnet routes",
+    placeholder: "192.168.1.0/24,10.0.0.0/8",
+  },
+];
+const commandChoiceFields = [
+  { name: "accept-dns", label: "Use network DNS", choices: ["default", "true", "false"] },
+  { name: "accept-routes", label: "Accept subnet routes", choices: ["default", "true", "false"] },
+];
+const commandChoiceLabels: Record<string, string> = {
+  default: "Default",
+  true: "Enabled",
+  false: "Disabled",
+};
+const commandSwitchFields = [
+  { name: "advertise-exit-node", label: "Offer as an exit node", control: "switch" },
+  { name: "ssh", label: "Enable Tailscale SSH", control: "switch" },
+];
+const commandFields = [...commandTextFields, ...commandChoiceFields, ...commandSwitchFields];
 
 export function AddDeviceDialog({
   loginServer,
@@ -23,14 +62,32 @@ export function AddDeviceDialog({
   const [pending, setPending] = useState(false);
   const submitting = useRef(false);
   const [error, setError] = useState<string>();
-  const [copied, setCopied] = useState(false);
+  const [options, setOptions] = useState<Record<string, string>>({
+    "accept-dns": "default",
+    "accept-routes": "default",
+  });
+  const [copiedCommand, setCopiedCommand] = useState("");
   const [copyError, setCopyError] = useState(false);
-  const command = `tailscale up --login-server='${loginServer.replaceAll("'", "'\\''")}'`;
+  const command = [
+    `tailscale up --login-server='${loginServer.replaceAll("'", "'\\''")}'`,
+    ...commandFields.flatMap((field) => {
+      const value = options[field.name]?.trim();
+      if (!value || ("choices" in field && value === "default")) return [];
+      if ("control" in field) return value === "true" ? [`--${field.name}`] : [];
+      return [`--${field.name}='${value.replaceAll("'", "'\\''")}'`];
+    }),
+  ].join(" ");
+  const copied = copiedCommand === command;
+
+  function changeOption(name: string, value: string) {
+    setOptions((current) => ({ ...current, [name]: value }));
+    setCopyError(false);
+  }
 
   async function copy() {
     try {
       await navigator.clipboard.writeText(command);
-      setCopied(true);
+      setCopiedCommand(command);
       setCopyError(false);
     } catch {
       setCopyError(true);
@@ -56,9 +113,89 @@ export function AddDeviceDialog({
   const commandContent = (
     <div className="space-y-4">
       <p className="text-sm text-muted">{t("Run on the device, then sign in in your browser.")}</p>
-      <pre className="rounded-xl border border-border bg-default p-4 text-sm whitespace-pre-wrap text-foreground wrap-anywhere select-text">
+      <pre className="max-h-24 overflow-y-auto rounded-xl border border-border bg-default p-3 text-xs leading-5 whitespace-pre-wrap text-foreground wrap-anywhere select-text">
         <code>{command}</code>
       </pre>
+      <Accordion hideSeparator className="rounded-xl border border-border">
+        <Accordion.Item id="options">
+          <Accordion.Heading>
+            <Accordion.Trigger className="min-h-10 px-3 py-2 text-sm text-foreground">
+              {t("Additional options")}
+              <Accordion.Indicator />
+            </Accordion.Trigger>
+          </Accordion.Heading>
+          <Accordion.Panel>
+            <Accordion.Body className="border-t border-border p-0">
+              <div className="grid gap-3 p-3 sm:grid-cols-2">
+                {commandTextFields.map((field) => (
+                  <TextField
+                    key={field.name}
+                    isDisabled={pending || method !== "command"}
+                    value={options[field.name] ?? ""}
+                    onChange={(value) => changeOption(field.name, value)}
+                    className="min-w-0 gap-1.5"
+                  >
+                    <Label className="text-xs text-muted">{t(field.label)}</Label>
+                    <Input
+                      className="h-9 min-w-0 rounded-lg border border-border text-sm shadow-none"
+                      placeholder={t(field.placeholder)}
+                      autoComplete="off"
+                      spellCheck={false}
+                    />
+                  </TextField>
+                ))}
+              </div>
+              <div className="divide-y divide-border border-t border-border">
+                {commandChoiceFields.map((field) => (
+                  <Select
+                    key={field.name}
+                    isDisabled={pending || method !== "command"}
+                    value={options[field.name] ?? "default"}
+                    onChange={(value) => changeOption(field.name, String(value))}
+                    className="flex flex-row items-center justify-between gap-3 px-3 py-1.5"
+                  >
+                    <Label className="min-w-0 text-sm">{t(field.label)}</Label>
+                    <Select.Trigger className="h-8 min-h-8 w-24 shrink-0 items-center rounded-lg border border-border py-0 ps-2 pe-7 text-sm shadow-none">
+                      <Select.Value className="text-sm leading-5" />
+                      <Select.Indicator />
+                    </Select.Trigger>
+                    <Select.Popover>
+                      <ListBox>
+                        {field.choices.map((value) => (
+                          <ListBox.Item
+                            key={value}
+                            id={value}
+                            textValue={t(commandChoiceLabels[value])}
+                          >
+                            {t(commandChoiceLabels[value])}
+                            <ListBox.ItemIndicator />
+                          </ListBox.Item>
+                        ))}
+                      </ListBox>
+                    </Select.Popover>
+                  </Select>
+                ))}
+                {commandSwitchFields.map((field) => (
+                  <Switch
+                    key={field.name}
+                    isDisabled={pending || method !== "command"}
+                    isSelected={options[field.name] === "true"}
+                    onChange={(value) => changeOption(field.name, String(value))}
+                    className="w-full px-3 py-1.5"
+                  >
+                    <Switch.Content className="min-h-8 w-full justify-between gap-3">
+                      <Label className="text-sm">{t(field.label)}</Label>
+                      <Switch.Control className="shrink-0">
+                        <Switch.Thumb />
+                      </Switch.Control>
+                    </Switch.Content>
+                  </Switch>
+                ))}
+              </div>
+            </Accordion.Body>
+          </Accordion.Panel>
+        </Accordion.Item>
+      </Accordion>
       {copyError && (
         <p className="text-sm text-danger">
           {t("Copy failed. Select and copy the command manually.")}
